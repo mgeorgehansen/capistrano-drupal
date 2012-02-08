@@ -2,7 +2,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   require 'capistrano/recipes/deploy/scm'
   require 'capistrano/recipes/deploy/strategy'
-  
+
   # =========================================================================
   # These variables may be set in the client capfile if their default values
   # are not sufficient.
@@ -13,10 +13,11 @@ Capistrano::Configuration.instance(:must_exist).load do
   _cset :branch, "master"
   set :git_enable_submodules, true
   set :runner_group, "www-data"
-  
+  set :drush_path, "drush"
+
   set(:deploy_to) { "/var/www/#{application}" }
   set :shared_children, ['files', 'private']
-  
+
   after "deploy:setup", "drush:createdb"
   after "deploy:setup", "drush:init_settings"
   before "drush:updatedb", "drush:backupdb"
@@ -26,7 +27,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:symlink", "drush:cache_clear"
   after "deploy:symlink", "drush:site_online"
   after "deploy:symlink", "git:push_deploy_tag"
-  
+
   namespace :deploy do
     desc <<-DESC
       Prepares one or more servers for deployment. Before you can use any \
@@ -48,7 +49,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "#{try_sudo} chmod -R g+w #{dirs.join(' ')}"
     end
   end
-  
+
   namespace :drupal do
     desc "Symlink settings and files to shared directory. This allows the settings.php and \
       and sites/default/files directory to be correctly linked to the shared directory on a new deployment."
@@ -58,7 +59,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
   end
-  
+
   namespace :git do
 
     desc "Place release tag into Git and push it to origin server."
@@ -74,35 +75,35 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
    end
-  
+
   namespace :drush do
 
     desc "Backup the database"
     task :backupdb, :on_error => :continue do
       t = Time.now.utc.strftime("%Y-%m-%dT%H-%M-%S")
-      run "drush -r #{app_path} bam-backup"
+      run "#{drush_path} -r #{app_path} bam-backup"
     end
 
     desc "Run Drupal database migrations if required"
     task :updatedb, :on_error => :continue do
-      run "drush -r #{app_path} updatedb -y"
+      run "#{drush_path} -r #{app_path} updatedb -y"
     end
 
     desc "Clear the drupal cache"
     task :cache_clear, :on_error => :continue do
-      run "drush -r #{app_path}  cc all"
+      run "#{drush_path} -r #{app_path}  cc all"
     end
-    
+
     desc "Set the site offline"
     task :site_offline, :on_error => :continue do
-      run "drush -r #{app_path} vset site_offline 1 -y"
+      run "#{drush_path} -r #{app_path} vset site_offline 1 -y"
     end
 
     desc "Set the site online"
     task :site_online, :on_error => :continue do
-      run "drush -r #{app_path} vset site_offline 0 -y"
+      run "#{drush_path} -r #{app_path} vset site_offline 0 -y"
     end
 
   end
-  
+
 end
