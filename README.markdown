@@ -6,7 +6,7 @@ Credit goes to railsless-deploy for many ideas here.
 
 ## Installation
 
-    # gem install capistrano-drupal
+    # gem install capistrano capistrano-ext capistrano-drupal railsless-deploy
     
 ## Usage
 
