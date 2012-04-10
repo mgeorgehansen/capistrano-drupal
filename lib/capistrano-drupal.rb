@@ -26,7 +26,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:symlink", "drush:updatedb"
   after "deploy:symlink", "drush:cache_clear"
   after "deploy:symlink", "drush:site_online"
-  after "deploy:symlink", "git:push_deploy_tag"
+  # after "deploy:symlink", "git:push_deploy_tag"
 
   namespace :deploy do
     desc <<-DESC
