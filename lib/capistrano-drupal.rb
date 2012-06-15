@@ -14,7 +14,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :git_enable_submodules, true
   set :runner_group, "www-data"
   set :drush_path, "drush"
-
+  set :group_writable, false
   set(:deploy_to) { "/var/www/#{application}" }
   set :shared_children, ['files', 'private']
 
@@ -42,11 +42,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       will not destroy any deployed revisions or data.
     DESC
     task :setup, :except => { :no_release => true } do
-      dirs = [deploy_to, releases_path, shared_path]
-      dirs += shared_children.map { |d| File.join(shared_path, d) }
-      run "#{try_sudo} mkdir -p #{dirs.join(' ')}"
-      run "#{try_sudo} chown -R #{runner}:#{runner_group} #{dirs.join(' ')}"
-      run "#{try_sudo} chmod -R g+w #{dirs.join(' ')}"
+      dirs = [deploy_to, releases_path, shared_path].join(' ')
+      run "#{try_sudo} mkdir -p #{dirs}"
+      run "#{try_sudo} chown -R #{runner}:#{runner_group} #{dirs}"
+      sub_dirs = shared_children.map { |d| File.join(shared_path, d) }
+      run "#{try_sudo} chmod -R g+w #{sub_dirs.join(' ')}"
     end
   end
 
@@ -97,11 +97,13 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Set the site offline"
     task :site_offline, :on_error => :continue do
       run "#{drush_path} -r #{app_path} vset site_offline 1 -y"
+      run "#{drush_path} -r #{app_path} vset maintenance_mode 1 -y"
     end
 
     desc "Set the site online"
     task :site_online, :on_error => :continue do
       run "#{drush_path} -r #{app_path} vset site_offline 0 -y"
+      run "#{drush_path} -r #{app_path} vset maintenance_mode 0 -y"
     end
 
   end
