@@ -21,11 +21,11 @@ Capistrano::Configuration.instance(:must_exist).load do
   # after "deploy:setup", "drush:createdb"
   # after "deploy:setup", "drush:init_settings"
   before "drush:updatedb", "drush:backupdb"
-  after "drupal:symlink_shared", "drush:site_offline"
+  # after "drupal:symlink_shared", "drush:site_offline"
   after "deploy:symlink", "drupal:symlink_shared"
   after "deploy:symlink", "drush:updatedb"
   after "deploy:symlink", "drush:cache_clear"
-  after "deploy:symlink", "drush:site_online"
+  # after "deploy:symlink", "drush:site_online"
   # after "deploy:symlink", "git:push_deploy_tag"
 
   namespace :deploy do
@@ -96,13 +96,11 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Set the site offline"
     task :site_offline, :on_error => :continue do
-      run "#{drush_path} -r #{app_path} vset site_offline 1 -y"
       run "#{drush_path} -r #{app_path} vset maintenance_mode 1 -y"
     end
 
     desc "Set the site online"
     task :site_online, :on_error => :continue do
-      run "#{drush_path} -r #{app_path} vset site_offline 0 -y"
       run "#{drush_path} -r #{app_path} vset maintenance_mode 0 -y"
     end
 
