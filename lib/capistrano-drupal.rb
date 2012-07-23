@@ -22,9 +22,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   # after "deploy:setup", "drush:init_settings"
   before "drush:updatedb", "drush:backupdb"
   # after "drupal:symlink_shared", "drush:site_offline"
-  after "deploy:symlink", "drupal:symlink_shared"
-  after "deploy:symlink", "drush:updatedb"
-  after "deploy:symlink", "drush:cache_clear"
+  after "deploy:create_symlink", "drupal:symlink_shared"
+  after "deploy:create_symlink", "drush:updatedb"
+  after "deploy:create_symlink", "drush:cache_clear"
   # after "deploy:symlink", "drush:site_online"
   # after "deploy:symlink", "git:push_deploy_tag"
 
